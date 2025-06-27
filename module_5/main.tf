@@ -11,8 +11,8 @@ provider "aws" {
   region = "eu-north-1"
 }
 
-resource "aws_s3_bucket" "bucket_m5" {
-  bucket = "bucket_m5"
+resource "aws_s3_bucket" "bucket-m5" {
+  bucket = "bucket-m5"
 
   lifecycle {
     prevent_destroy = true
