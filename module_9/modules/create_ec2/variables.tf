@@ -80,7 +80,3 @@ variable "allowed_ssh_cidr" {
     error_message = "Public internet access (0.0.0.0/0) is not allowed for SSH. Use a restricted CIDR."
   }
 }
-
-
-
-

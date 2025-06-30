@@ -24,7 +24,7 @@ resource "aws_instance" "instance_m9" {
     precondition {
       condition     = var.vpc_id != data.aws_vpc.default.id
       error_message = "Deployment blocked: default VPC is not allowed. Use a custom VPC."
-  }
+    }
   }
 
   tags = var.tags
@@ -53,9 +53,8 @@ resource "aws_security_group" "security_group_m9" {
   }
 
   tags = var.tags
-}  
+}
 
 data "aws_vpc" "default" {
   default = true
 }
-

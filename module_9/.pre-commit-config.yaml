@@ -1,0 +1,102 @@
+repos:
+  # Terraform hooks
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.88.4
+    hooks:
+      - id: terraform_fmt
+        name: Terraform fmt
+        description: Rewrites all Terraform configuration files to canonical format
+        files: ^module_9/
+
+      - id: terraform_validate
+        name: Terraform validate
+        description: Validates all Terraform configuration files
+        files: ^module_9/
+
+      - id: terraform_docs
+        name: Terraform docs
+        description: Inserts input and output documentation into README.md
+        args:
+          - '--args=--lockfile=false'
+          - '--args=--sort-by=name'
+        files: ^module_9/
+
+      - id: terraform_tflint
+        name: Terraform tflint
+        description: Validates all Terraform configuration files with TFLint
+        require_serial: false
+        files: ^module_9/
+
+      - id: terraform_tfsec
+        name: Terraform tfsec
+        description: Static analysis of Terraform templates to spot potential security issues
+        files: ^module_9/
+
+      - id: terraform_checkov
+        name: Checkov
+        description: Runs Checkov on Terraform files
+        args:
+          - --framework=terraform
+          - --download-external-modules=true
+        files: ^module_9/
+
+  # Terrascan (matching your makefile)
+  - repo: local
+    hooks:
+      - id: terrascan
+        name: Terrascan
+        description: Runs Terrascan to detect compliance and security violations
+        entry: terrascan scan -t aws -d . || true
+        language: system
+        files: \.tf$
+        pass_filenames: false
+
+  # General file hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim trailing whitespace
+        description: Trims trailing whitespace
+
+      - id: end-of-file-fixer
+        name: Fix end of files
+        description: Makes sure files end in a newline and only a newline
+
+      - id: check-merge-conflict
+        name: Check for merge conflicts
+        description: Check for files that contain merge conflict strings
+
+      - id: check-added-large-files
+        name: Check for added large files
+        description: Prevent giant files from being committed
+
+      - id: check-yaml
+        name: Check YAML
+        description: Attempts to load all yaml files to verify syntax
+
+      - id: check-json
+        name: Check JSON
+        description: Attempts to load all json files to verify syntax
+
+  # Markdown and documentation
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.39.0
+    hooks:
+      - id: markdownlint
+        name: Markdownlint
+        description: Run markdownlint on your Markdown files
+        args: ['--fix']
+
+  # Git hooks
+  - repo: https://github.com/jorisroovers/gitlint
+    rev: v0.19.1
+    hooks:
+      - id: gitlint
+        name: Gitlint
+        description: Checks your git commit messages for style
+        stages: [commit-msg]
+
+# Global settings
+default_stages: [commit]
+fail_fast: false
