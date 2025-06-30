@@ -4,5 +4,6 @@ output "instance_id" {
 }
 
 output "security_group_id" {
-    value = module.create_ec2.security_group_id
+  description = "The created security group id"
+  value       = module.create_ec2.security_group_id
 }

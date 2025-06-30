@@ -16,7 +16,7 @@ variable "instance_type" {
 
   validation {
     condition     = contains(["t2.micro", "t3.micro", "t3.small", "t3.medium"], var.instance_type)
-    error_message = "Instance type must be one of: t2.micro, t3.micro, t3.small, t3.medium"
+    error_message = "Instance type must be one of: t2.micro, t3.micro, t3.small, t3.medium."
   }
 }
 
@@ -72,15 +72,12 @@ variable "vpc_id" {
 
 variable "allowed_ssh_cidr" {
   type        = list(string)
-  default     = ["0.0.0.0/0"]
+  default     = ["203.0.113.17/32"]
   description = "CIDR blocks defining IP addresses that are allowed to SSH into the instance"
 
   validation {
-    condition = alltrue([
-      for cidr in var.allowed_ssh_cidr :
-      can(regex("^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$", cidr))
-    ])
-    error_message = "Each SSH CIDR must be a valid CIDR block (e.g., 192.168.0.0/24)."
+    condition     = var.allowed_ssh_cidr != "0.0.0.0/0"
+    error_message = "Public internet access (0.0.0.0/0) is not allowed for SSH. Use a restricted CIDR."
   }
 }
 
