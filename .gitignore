@@ -1,0 +1,43 @@
+# Terraform state files
+*.tfstate
+*.tfstate.backup
+*.tfplan
+
+# Local override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Crash logs
+crash.log
+
+# .terraform directory (plugins, providers, local state, etc.)
+.terraform/
+
+# Variable definition files that may contain secrets
+*.tfvars
+*.tfvars.json
+
+# Sensitive files
+credentials.tf
+secrets.tf
+*.pem
+*.key
+
+# Shell scripts output
+*.log
+
+# macOS metadata
+.DS_Store
+
+# IDE/editor files
+.vscode/
+.idea/
+*.swp
+*~
+
+# Python virtualenv (if used in tooling)
+.venv/
+__pycache__/
+
