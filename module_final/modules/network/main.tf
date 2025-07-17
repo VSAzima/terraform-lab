@@ -28,8 +28,8 @@ resource "google_compute_global_address" "lb_static_ip" {
 
 resource "google_compute_health_check" "http" {
   name                 = "health-check-tf"
-  check_interval_sec   = 2
-  timeout_sec          = 1
+  check_interval_sec   = 5
+  timeout_sec          = 5
   healthy_threshold    = 2
   unhealthy_threshold  = 2
 
@@ -46,9 +46,12 @@ resource "google_compute_backend_service" "default" {
   port_name                       = "http"
   timeout_sec                     = 10
   health_checks                   = [google_compute_health_check.http.id]
+
   backend {
     group = var.instance_group_url 
   }
+
+  depends_on = [google_compute_health_check.http]
 }
 
 resource "google_compute_url_map" "url_map" {
@@ -79,7 +82,7 @@ resource "google_compute_route" "default_internet_route" {
 }
 
 resource "google_compute_firewall" "allow_health_check" {
-  name    = "allow-health-checks"
+  name    = "allow-health-check-tf"
   network = google_compute_network.vpc_network.name
 
   allow {
@@ -87,8 +90,17 @@ resource "google_compute_firewall" "allow_health_check" {
     ports    = ["8080"]
   }
 
-  source_ranges = ["130.211.0.0/22", "35.191.0.0/16"]
+  direction     = "INGRESS"
+  source_ranges = ["130.211.0.0/22", "35.191.0.0/16"] 
+  target_tags   = ["web-server"]
+
+    lifecycle {
+    create_before_destroy = true
+    prevent_destroy      = false
+  }
+
 }
+
 
 resource "google_compute_firewall" "allow_ssh" {
   name    = "allow-ssh"
@@ -99,7 +111,7 @@ resource "google_compute_firewall" "allow_ssh" {
     ports    = ["22"]
   }
 
-  source_ranges = ["109.111.235.230/32"]
+  source_ranges = ["82.117.193.213/32"]
 
   target_tags = ["ssh-enabled"]
 }
