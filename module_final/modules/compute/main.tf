@@ -41,8 +41,8 @@ resource "google_compute_instance_template" "template" {
 
   apt-get update
   apt-get install -y apache2
-  sed -i 's/Listen 80/Listen 8080/' /etc/apache2/ports.conf
-  sed -i 's/<VirtualHost \*:80>/<VirtualHost *:8080>/' /etc/apache2/sites-enabled/000-default.conf
+  sed -i 's/Listen 80/Listen 8888/' /etc/apache2/ports.conf
+  sed -i 's/<VirtualHost \*:80>/<VirtualHost *:8888>/' /etc/apache2/sites-enabled/000-default.conf
   systemctl restart apache2
 
   WEB_ROOT="/var/www/html"
@@ -96,7 +96,7 @@ resource "google_compute_region_instance_group_manager" "group" {
   target_size        = var.instance_count
   named_port {
     name = "http"
-    port = 8080
+    port = 8888
   }
 
    version {

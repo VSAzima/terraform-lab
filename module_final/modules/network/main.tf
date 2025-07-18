@@ -14,12 +14,42 @@ resource "google_compute_firewall" "allow_http" {
   name    = "allow-http-from-ip-range-tf"
   network = google_compute_network.vpc_network.name
 
-  allow {
+    allow {
     protocol = "tcp"
-    ports    = ["80"]
+    ports    = ["8888"]
   }
 
   source_ranges = var.allowed_ips
+  target_tags   = ["web-server"]
+  direction     = "INGRESS"
+  priority      = 1000
+}
+
+resource "google_compute_security_policy" "restrict_ips" {
+  name        = "cloud-armor-tf"
+  description = "Security policy to restrict access to allowed IPs"
+
+  rule {
+    action   = "allow"
+    priority = "1000"
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = var.allowed_ips
+      }
+    }
+  }
+
+  rule {
+    action   = "deny(403)"
+    priority = "2147483647" 
+    match {
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["*"]
+      }
+    }
+  }
 }
 
 resource "google_compute_global_address" "lb_static_ip" {
@@ -34,7 +64,7 @@ resource "google_compute_health_check" "http" {
   unhealthy_threshold  = 2
 
   http_health_check {
-    port = 8080
+    port = 8888
     request_path = "/"
   }
 }
@@ -46,9 +76,15 @@ resource "google_compute_backend_service" "default" {
   port_name                       = "http"
   timeout_sec                     = 10
   health_checks                   = [google_compute_health_check.http.id]
+  security_policy                 = google_compute_security_policy.restrict_ips.id
 
   backend {
     group = var.instance_group_url 
+  }
+
+  log_config {
+    enable       = true
+    sample_rate  = 1.0
   }
 
   depends_on = [google_compute_health_check.http]
@@ -67,7 +103,7 @@ resource "google_compute_target_http_proxy" "http_proxy" {
 resource "google_compute_global_forwarding_rule" "http_forwarding_rule" {
   name                  = "fw-rule-tf"
   target                = google_compute_target_http_proxy.http_proxy.id
-  port_range            = "8080"
+  port_range            = "8888"
   load_balancing_scheme = "EXTERNAL"
   ip_protocol           = "TCP"
   ip_address            = google_compute_global_address.lb_static_ip.address
@@ -87,7 +123,7 @@ resource "google_compute_firewall" "allow_health_check" {
 
   allow {
     protocol = "tcp"
-    ports    = ["8080"]
+    ports    = ["8888"]
   }
 
   direction     = "INGRESS"
@@ -99,19 +135,4 @@ resource "google_compute_firewall" "allow_health_check" {
     prevent_destroy      = false
   }
 
-}
-
-
-resource "google_compute_firewall" "allow_ssh" {
-  name    = "allow-ssh"
-  network = google_compute_network.vpc_network.name
-
-  allow {
-    protocol = "tcp"
-    ports    = ["22"]
-  }
-
-  source_ranges = ["82.117.193.213/32"]
-
-  target_tags = ["ssh-enabled"]
 }

@@ -19,7 +19,7 @@ variable "zone" {
 variable "allowed_ips" {
   description = "CIDR blocks defining IP addresses that are allowed to access the instance"
   type        = list(string)
-  default     = ["172.18.184.0/23"] #GD-wifi limit
+  default     = ["109.111.235.230/32"] #GD-wifi limit
 
   validation {
     condition     = var.allowed_ips != "0.0.0.0/0"
