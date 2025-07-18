@@ -1,3 +1,4 @@
+#ts:skip=AC-AW-IS-IN-M-0144 Subnet id, as well as VPC are inherited from the root module
 resource "aws_instance" "instance_m9" {
   ami           = var.ami
   instance_type = var.instance_type
